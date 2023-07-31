@@ -14,6 +14,7 @@
 #include <vector>
 #include <string>
 
+
 //class MyTableModel : public juce::TableListBoxModel
 //{
 //public:
@@ -49,10 +50,16 @@
 //    const std::vector<std::string>& prices;
 //};
 
+
+
+
+
 class MainComponent: 
     public juce::Component,
+    public juce::TableListBoxModel,
     public juce::AsyncUpdater,
-    public MyViewInterface
+    public MyViewInterface,
+    public juce::Timer
 {
 public:
 
@@ -74,7 +81,30 @@ protected:
     /*std::unique_ptr<MyTableModel> tableModel;*/
 
 private:
+    //juce::TableListBox tableListBox;
     std::shared_ptr<MyModel> model;
+    juce::TableListBox table;
+    juce::Font font{ 14.0f };
+    
+    /*class MyTableModel : public juce::TableListBoxModel
+    {
+    public:
+        MyTableModel(MainComponent& parentComponent);
+        int getNumRows() override;
+        void paintRowBackground(juce::Graphics& g, int rowNumber, int width, int height, bool rowIsSelected) override;
+        void paintCell(juce::Graphics& g, int rowNumber, int columnId, int width, int height, bool rowIsSelected) override;
+
+    private:
+        MainComponent& parentComponent;
+    };*/
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainComponent);
+
+    // Inherited via TableListBoxModel
+    virtual int getNumRows() override;
+    virtual void paintRowBackground(juce::Graphics&, int rowNumber, int width, int height, bool rowIsSelected) override;
+    virtual void paintCell(juce::Graphics&, int rowNumber, int columnId, int width, int height, bool rowIsSelected) override;
+
+    // Inherited via Timer
+    virtual void timerCallback() override;
 };
 
