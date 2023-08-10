@@ -1,55 +1,37 @@
 #include "MyModel.h"
-
 void MyModel::run()
 {
-	MyAsyncHttpSession ses;
-	ses.run([this](const std::string& res)
+    MyWebSocketSession ses;
+    ses.run([this](const std::string& res)
         {
             response = res;
+            parseData(response);
             if (view)
                 view->update();
         });
 }
-
-void MyModel::parseData(const std::string& jsonData)
+void MyModel::timerCallback()
+{
+    run();
+}
+void MyModel::parseData(std::string response)
 {
     using json = nlohmann::json;
     try {
-        // JSON formatýna çevirme
-        json parsed_json = json::parse(jsonData);
-
-        // JSON formatýný kontrol etme
+        // JSON parsing
+        json parsed_json = json::parse(response);
         if (!parsed_json.is_array()) {
             std::cerr << "Error: The JSON is not an array of objects." << std::endl;
             return;
         }
-
-        // Parse edilmiþ JSON'daki fiyat ve sembolleri vektörlere ekleme
-        std::vector<std::string> tmpSymbols;
-        std::vector<std::string> tmpPrices;
-
+        // Parse JSON and update the vectors
+        symbols.clear();
+        prices.clear();
+        int count = 0;
         for (const auto& item : parsed_json) {
             if (item.is_object()) {
-                if (data.find(item["symbol"]) != data.end())
-                {
-                    data.insert(item["symbol"], item["price"]);
-                }
-                else
-                {
-                    auto currentVal = data[item["symbol"]];
-                    if (currentVal != item["price"])
-                    {
-                        try
-                        {
-                            auto parsedVal = std::stod(currentVal);
-                            auto parsedNewVal = std::stod(item["price"].dump());
-                        }
-                        catch (const std::exception&e)
-                        {
-                            OutputDebugString("Deger parse edilemedi.");
-                        }
-                    }
-                }
+                symbols.push_back(item["s"]);
+                prices.push_back(item["c"]);
             }
             else {
                 std::cerr << "Error: One of the items is not a JSON object." << std::endl;
@@ -62,11 +44,11 @@ void MyModel::parseData(const std::string& jsonData)
         return;
     }
 }
-
-std::map<std::string, std::string> MyModel::getData() const
+const std::vector<std::string>& MyModel::getSymbols() const
 {
-    return data;
+    return symbols;
 }
-
-
-// diff'i  vector indeksiyle flasher'a gonder
+const std::vector<std::string>& MyModel::getPrices() const
+{
+    return prices;
+}
