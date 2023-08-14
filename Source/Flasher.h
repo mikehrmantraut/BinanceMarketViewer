@@ -20,9 +20,8 @@ private:
     int flashInterval;
     juce::Time flashStartTime;
     virtual void timerCallback();
-    int flashDuration; // Geçici renklendirme süresi (milisaniye cinsinden)
+    int flashDuration;
     juce::Time lastFlashTime;
     int previousPrice = 0;
     juce::String currentData;
-     // Flasher'ın göreceği güncel veri
 };

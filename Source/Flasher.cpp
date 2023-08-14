@@ -45,7 +45,7 @@ void Flasher::flash(juce::Graphics& g, const juce::String& text, int x, int y,in
             // Verilere gore renk degistirme
             if (currentData > tempdata.at(row)) {
                 g.setColour(juce::Colours::green);
-               g.setOpacity(0.3);
+                g.setOpacity(0.3);
                 g.fillRect(x, y, 200, 20);
                 g.drawText(currentData, getLocalBounds(), juce::Justification::centredLeft, true);
             }

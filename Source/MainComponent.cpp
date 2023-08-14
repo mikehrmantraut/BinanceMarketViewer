@@ -1,5 +1,5 @@
-#include <nlohmann/json.hpp>
 #include "MainComponent.h"
+
 // juce timer
 MainComponent::MainComponent(std::shared_ptr<MyModel> aModel)
 {
@@ -34,6 +34,7 @@ void MainComponent::createTable()
         50, 400,
         juce::TableHeaderComponent::defaultFlags);
 }
+
 void MainComponent::resized()
 {
     table.setBoundsInset(juce::BorderSize<int>(8));
@@ -51,19 +52,19 @@ int MainComponent::getNumRows()
 {
     return model->getSymbols().size();
 }
-void MainComponent::paintRowBackground(juce::Graphics&, int rowNumber, int width, int height, bool rowIsSelected)
+
+void MainComponent::paintRowBackground(juce::Graphics& g, int rowNumber, int width, int height, bool rowIsSelected)
 {
 }
+
 void MainComponent::paintCell(juce::Graphics& g, int rowNumber, int columnId, int width, int height, bool rowIsSelected)
 {
-    //degerleri yazdiracagimiz yer
     g.setColour(getLookAndFeel().findColour(juce::ListBox::textColourId));
     g.setFont(font);
 
     auto price = juce::String(model->getPrices().at(rowNumber));
     auto symbol = juce::String(model->getSymbols().at(rowNumber));
-
-
+        
     if (columnId == 1)
     {
         g.drawText(symbol, 2, 0, width - 4, height, juce::Justification::centredLeft, true);
@@ -75,7 +76,15 @@ void MainComponent::paintCell(juce::Graphics& g, int rowNumber, int columnId, in
         flasher.flash(g, price, 2, 0, rowNumber); 
     }
 
-
     g.setColour(getLookAndFeel().findColour(juce::ListBox::backgroundColourId));
     g.fillRect(width - 1, 0, 1, height);
+}
+
+void MainComponent::cellClicked(int rowNumber, int columnId, const juce::MouseEvent&)
+{
+
+    juce::String selectedPrice = model->getPrices().at(rowNumber);
+    juce::String selectedSymbol = model->getSymbols().at(rowNumber);
+        
+    new CryptoDetailWindow(selectedSymbol, selectedPrice);
 }
