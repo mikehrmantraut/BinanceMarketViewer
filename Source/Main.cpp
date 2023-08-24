@@ -1,19 +1,13 @@
-/*
-  ==============================================================================
-
-    This file contains the basic startup code for a JUCE application.
-
-  ==============================================================================
-*/
-
 #include <JuceHeader.h>
 #include "MainComponent.h"
 #include "MyModel.h"
-//==============================================================================
+// global static
+MyWebSocketSession* g_ws = nullptr;
+
 class BinanceMarketViewerApplication  : public juce::JUCEApplication
 {
 public:
-    //==============================================================================
+
     BinanceMarketViewerApplication() {}
 
     const juce::String getApplicationName() override       { return ProjectInfo::projectName; }
@@ -30,12 +24,12 @@ public:
 
     void shutdown() override
     {
-        // Add your application's shutdown code here..
-
+       
         mainWindow = nullptr; // (deletes our window)
+        ::g_ws = nullptr;
+        delete ::g_ws;
     }
 
-    //==============================================================================
     void systemRequestedQuit() override
     {
         // This is called when the app is being asked to quit: you can ignore this
@@ -64,13 +58,20 @@ public:
                                                           .findColour (juce::ResizableWindow::backgroundColourId),
                               DocumentWindow::allButtons)
         {
+
+
+            if (::g_ws == nullptr)
+            {
+                ::g_ws = new MyWebSocketSession();
+                //ws.addListener(mainCompModel.get());
+                ::g_ws->run([](const std::string& message) {});
+            }
+
             auto mainCompModel = std::make_shared<MyModel>();
             MainComponent* mainComp = new MainComponent(mainCompModel);
             mainCompModel->setView(mainComp);
-
             setUsingNativeTitleBar(true);
             setContentOwned(mainComp, true);
-
            #if JUCE_IOS || JUCE_ANDROID
             setFullScreen (true);
            #else
@@ -83,18 +84,8 @@ public:
 
         void closeButtonPressed() override
         {
-            // This is called when the user tries to close this window. Here, we'll just
-            // ask the app to quit when this happens, but you can change this to do
-            // whatever you need.
             JUCEApplication::getInstance()->systemRequestedQuit();
         }
-
-        /* Note: Be careful if you override any DocumentWindow methods - the base
-           class uses a lot of them, so by overriding you might break its functionality.
-           It's best to do all your work in your content component instead, but if
-           you really have to override any DocumentWindow methods, make sure your
-           subclass also calls the superclass's method.
-        */
 
     private:
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainWindow)
@@ -104,6 +95,5 @@ private:
     std::unique_ptr<MainWindow> mainWindow;
 };
 
-//==============================================================================
-// This macro generates the main() routine that launches the app.
+
 START_JUCE_APPLICATION (BinanceMarketViewerApplication)

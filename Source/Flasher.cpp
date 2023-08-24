@@ -7,7 +7,7 @@ void Flasher::start(int numFlashes, int flashIntervalMs)
 {
     if (numFlashes > 0 && flashIntervalMs > 0)
     {
-        numFlashesRemaining = numFlashes * 2; 
+        numFlashesRemaining = numFlashes * 2;
         flashInterval = flashIntervalMs;
         flashing = true;
         flashStartTime = juce::Time::getCurrentTime();
@@ -32,31 +32,31 @@ void Flasher::setNewData(const juce::String& newData)
     currentData = newData;
     tempdata.push_back(newData);
 }
-void Flasher::flash(juce::Graphics& g, const juce::String& text, int x, int y,int row)
+void Flasher::flash(juce::Graphics& g, const juce::String& text, int x, int y, int row)
 {
     juce::Time currentTime = juce::Time::getCurrentTime();
     int count = 0;
-        if ((currentTime - lastFlashTime).inMilliseconds() < flashDuration)
-        {
+    if ((currentTime - lastFlashTime).inMilliseconds() < flashDuration)
+    {
+        g.setColour(juce::Colours::green);
+    }
+    else
+    {
+        // Verilere gore renk degistirme
+        if (currentData > tempdata.at(row)) {
             g.setColour(juce::Colours::green);
+            g.setOpacity(0.3);
+            g.fillRect(x, y, 200, 20);
+            g.drawText(currentData, getLocalBounds(), juce::Justification::centredLeft, true);
         }
-        else
-        {
-            // Verilere gore renk degistirme
-            if (currentData > tempdata.at(row)) {
-                g.setColour(juce::Colours::green);
-                g.setOpacity(0.3);
-                g.fillRect(x, y, 200, 20);
-                g.drawText(currentData, getLocalBounds(), juce::Justification::centredLeft, true);
-            }
-            else if (currentData < tempdata.at(row)) {
-                g.setColour(juce::Colours::red);
-                g.setOpacity(0.3);
-                g.fillRect(x, y, 200, 20);
-                g.drawText(currentData, getLocalBounds(), juce::Justification::centredLeft, true);
-            }
-            count++;
+        else if (currentData < tempdata.at(row)) {
+            g.setColour(juce::Colours::red);
+            g.setOpacity(0.3);
+            g.fillRect(x, y, 200, 20);
+            g.drawText(currentData, getLocalBounds(), juce::Justification::centredLeft, true);
         }
+        count++;
+    }
 }
 void Flasher::timerCallback()
 {

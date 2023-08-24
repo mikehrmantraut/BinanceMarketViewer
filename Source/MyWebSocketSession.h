@@ -12,6 +12,8 @@
 #include <iostream>
 #include <string>
 #include <functional>
+#include "data_listener.h"
+#include <mutex>
 
 namespace beast = boost::beast;         // from <boost/beast.hpp>
 namespace http = beast::http;           // from <boost/beast/http.hpp>
@@ -24,4 +26,8 @@ class MyWebSocketSession
 {
 public:
 	int run(std::function <void(const std::string& message)> cb);
+	void addListener(data_listener* aListener);
+private:
+	std::vector<data_listener*> listeners;
+	std::recursive_mutex protect_listeners;
 };

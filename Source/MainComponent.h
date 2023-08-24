@@ -19,17 +19,16 @@ public:
     void resized() override;
     virtual void handleAsyncUpdate() override;
     virtual void update() override;
+    int getNumRows() override;
     void createTable();
 
 private:
     Flasher flasher;
     std::shared_ptr<MyModel> model;
     juce::TableListBox table;
-    juce::Font font{ 28.0f };
-    //=====================
-    void    cellClicked(int rowNumber, int columnId, const juce::MouseEvent&);
-    //=====================
-    virtual int getNumRows() override;
+    juce::Font font{ 14.0f };
+    void    cellDoubleClicked(int rowNumber, int columnId, const juce::MouseEvent&);
     virtual void paintRowBackground(juce::Graphics&, int rowNumber, int width, int height, bool rowIsSelected) override;
-    virtual void paintCell(juce::Graphics&, int rowNumber, int columnId, int width, int height, bool rowIsSelected) override;
+    virtual void paintCell(juce::Graphics&, int rowNumber, int columnId, int width, int height, bool rowIsSelected);
 };
+

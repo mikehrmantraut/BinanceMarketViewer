@@ -6,31 +6,58 @@
 #include <nlohmann/json.hpp>
 #include <juce_graphics/juce_graphics.h>
 #include <algorithm>
+#include <map>
+#include <iostream>
+#include "data_listener.h"
+
+// headeri olmayan dosyalardan kullanmak istedigimiz degiskeni
+// kullanabiliriz (extern ile)
+// dll'lerde de kullanilir.
+
+extern MyWebSocketSession* g_ws;
+
+struct MarketData
+{
+	std::string close;
+	std::string open;
+	std::string low;
+	std::string high;
+	std::string totalTrade;
+	std::string totalQuote;
+};
+
+struct SymbolData
+{
+	std::string symbol;
+	std::string currentPrice;
+};
 
 class MyModel :
-	public juce::Timer,
-	public juce::Component
-
+	public data_listener
 {
 public:
-	MyModel() : view(nullptr){}
+	MyModel() : view(nullptr), data()
+	{
+		auto size = data.size();
+		::g_ws->addListener(this);
+	}
 	~MyModel(){}
 	void setView(MyViewInterface* aView) {
 		if (aView)
 			view = aView;
 	}
-	void run();
-	const std::vector<std::string>& getSymbols() const;
-	const std::vector<std::string>& getPrices() const;
-	std::string response;
-	MyViewInterface* view;
+	std::vector<SymbolData> getMainComponentData();
+	virtual void onDataReceived(const std::string &message ) override;
+	std::map<std::string, MarketData>getData();
+
+private:
+	void parseData(const std::string& response);
+
 private:
 	juce::TableListBox table;
-	std::vector<std::string> symbols;
-	std::vector<std::string> prices;
-	std::vector<std::size_t> ids;
-	virtual void timerCallback() override;
-	void parseData(std::string& response);
-	void sortData(std::vector<std::string>& symbols, std::vector<std::string>& prices, std::vector<size_t>& ids);
+	MyViewInterface* view;
+	std::map<std::string, MarketData> data;
+
+
 	
 };

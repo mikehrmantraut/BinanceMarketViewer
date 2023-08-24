@@ -12,7 +12,7 @@ public:
     bool isFlashing() const;
     void resetLastFlashTime();
     void setNewData(const juce::String& newData);
-    void flash(juce::Graphics& g, const juce::String& text, int x, int y,int row);
+    void flash(juce::Graphics& g, const juce::String& text, int x, int y, int row);
 private:
     bool flashing;
     std::vector<juce::String> tempdata;
